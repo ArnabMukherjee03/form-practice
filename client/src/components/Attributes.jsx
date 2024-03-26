@@ -45,18 +45,21 @@ export const Attributes = () => {
   };
 
   return (
-    <div className="w-full flex  gap-8 items-center justify-center">
+    <div className="w-full flex flex-col  gap-8 items-center justify-center">
       <div className="">
         <h1 className="text-xl">Attributes List</h1>
         {data?.map((value) => {
           return value?.type === "text" ? (
             <div key={value.id}>{value.attribute}</div>
           ) : (
-            <select >
-              <option value="none" selected disabled hidden>{value.attribute}</option> 
-              {
-                value?.options.split(",").map((option) => (
-                <option key={option} value={option}>{option}</option>
+            <select className="w-60 border border-black outline-none px-1">
+              <option value="none" selected disabled hidden>
+                {value.attribute}
+              </option>
+              {value?.options.split(",").map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           );

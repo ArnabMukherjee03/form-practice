@@ -1,6 +1,9 @@
 const {
   addAttribute,
   getAttribute,
+  addData,
+  getData,
+  deleteData,
 } = require("../controllers/attribute.controller");
 
 
@@ -27,6 +30,26 @@ const router = [
     options: {
       handler: getAttribute,
     },
+  },
+  {
+    method: "POST",
+    path: "/data/add",
+    options: {
+      handler: addData,
+    },
+  },
+  {
+    method: "GET",
+    path: "/data/get",
+    options: {
+      handler: getData,
+    }},
+    {
+      method: "DELETE",
+      path: "/data/delete/{id}",
+      options: {
+        handler: deleteData,
+      }
   }
 ];
 
