@@ -11,8 +11,8 @@ axios_instance.interceptors.response.use(response =>{
         status: response.status
     }
     return response_data;
-},(err)=>{
-    console.log(err);
+},(error)=>{
+    alert(error?.response?.data?.message);
 })
 
 

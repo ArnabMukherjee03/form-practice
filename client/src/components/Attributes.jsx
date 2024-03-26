@@ -12,6 +12,7 @@ export const Attributes = () => {
 
   useEffect(() => {
     fetchAttributes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOptions = (event) => {
@@ -23,8 +24,6 @@ export const Attributes = () => {
 
     setOptions(updatedOptions);
   };
-
-  // console.log(options);
 
   const addAttributes = async () => {
     try {
@@ -39,8 +38,7 @@ export const Attributes = () => {
         fetchAttributes();
       }
     } catch (error) {
-      console.log("error", error);
-      alert("Something Went Wrong");
+      console.log(error);
     }
   };
 

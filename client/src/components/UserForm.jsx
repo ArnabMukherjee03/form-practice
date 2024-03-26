@@ -10,6 +10,7 @@ export const UserForm = () => {
   const [attributes, setAttributes] = useState([]);
   const [isDropdown, setIsDropdown] = useState([]);
   const [choosed, setChoosed] = useState([]);
+  const [text,setText] = useState([]);
   const [attNo, setAttNo] = useState([1]);
   const { data, fetchAttributes } = useContext(dataContext);
 
@@ -17,7 +18,7 @@ export const UserForm = () => {
     fetchAttributes();
   }, []);
 
-  
+
   const addData = async () => {
     const keys = Object.keys(attributes);
     const data = keys.map((key) => ({
@@ -42,8 +43,6 @@ export const UserForm = () => {
     }
   };
 
- 
-
   
   const handleSelect = (e) => {
     const filterData = data?.find((data) => data.attribute === e.target.value);
@@ -54,6 +53,7 @@ export const UserForm = () => {
       setIsDropdown(dropdown);
       new_attributes[parseInt(e.target.name) - 1] = {attribute:filterData.attribute,options:filterData.options}
       setAttributes(new_attributes)
+      setText([...text,0])
     }else if(dropdown[parseInt(e.target.name) - 1] && filterData.type === "text"){
       dropdown[parseInt(e.target.name) - 1] = undefined;
       setIsDropdown(dropdown);
@@ -62,9 +62,11 @@ export const UserForm = () => {
       const data = [...choosed];
       data[parseInt(e.target.name) - 1] = undefined;
       setChoosed(data);
+      setText([...text,1])
     }else{
       new_attributes[parseInt(e.target.name) - 1] = {attribute:filterData.attribute}
       setAttributes(new_attributes)
+      setText([...text,1])
     }
   };
 
@@ -73,6 +75,8 @@ export const UserForm = () => {
       data[parseInt(e.target.name) - 1] = e.target.value;
       setChoosed(data)
   }
+
+
 
   return (
     <div className="w-full flex flex-col justify-center items-center">
@@ -119,7 +123,14 @@ export const UserForm = () => {
                   </label>
                 ))
               : ""
-          }</>
+          }
+
+          {
+            text.length !== 0 && text[att-1]===1?
+            <input name={att} onChange={handleChoose} type="text" className="w-60 border border-black outline-none px-1"/>
+            : ""
+          }
+          </>
         )
         )}
         <div
