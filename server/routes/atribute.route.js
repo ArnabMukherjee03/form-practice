@@ -5,7 +5,14 @@ const {
   getData,
   deleteData,
 } = require("../controllers/attribute.controller");
+const Joi = require("joi");
+const error = require("../utils/customError");
 
+const schema = Joi.object({
+  attribute: Joi.string().required().messages({
+      'any.required': 'Attribute is required.'
+  })
+});
 
 const router = [
   {
@@ -22,6 +29,23 @@ const router = [
     path: "/attrubutes/add",
     options: {
       handler: addAttribute,
+      validate: {
+        payload: Joi.object({
+          attribute: Joi.string().required().messages({
+            'any.required': 'Attribute is required.'
+          }),
+          options: Joi.allow(),
+          type: Joi.allow()
+        }),
+        failAction: (request, h, err) => {
+          const details = err.details
+          console.log(details);
+          throw error(
+            { message: details[0].message, status: 'failure' },
+            details[0].message
+          )
+        }
+      }
     },
   },
   {

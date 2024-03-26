@@ -1,5 +1,6 @@
 const { where } = require("sequelize");
 const { attribute, data, dataattributes } = require("../models");
+const error = require("../utils/customError");
 
 const addAttribute = async (req, res) => {
   try {
@@ -10,9 +11,13 @@ const addAttribute = async (req, res) => {
       options: options.toString(),
     });
     return res.response({ message: "Sucessfully Updated" }).code(201);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw error(
+      { message: err.message, status: 'failure' },
+      err.message
+    )
   }
+  
 };
 
 const getAttribute = async (req, res) => {
