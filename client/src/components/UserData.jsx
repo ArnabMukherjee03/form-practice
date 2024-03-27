@@ -5,17 +5,19 @@ import { dataContext } from "../context/DataContext";
 export const UserData = () => {
   const [datas, setDatas] = useState([]);
   const [edit, setEdit] = useState(null);
-  const [attedit, setAttedit] = useState(null);
   const [show, setShow] = useState(false);
   const [isDropdown, setIsDropdown] = useState(null);
+  const [att,setatt] = useState(null);
   const [choosed, setChoosed] = useState("");
   const { data, fetchAttributes } = useContext(dataContext);
+
+  const [arr, setArr] = useState([]);
 
   useEffect(() => {
     fetchAttributes();
   }, []);
 
- console.log(isDropdown);
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,12 +36,24 @@ export const UserData = () => {
     setIsDropdown(filterData);
   };
 
-  console.log(choosed);
+  const handleChange = (e)=>{
+    const index = arr.findIndex((data)=> data.id === att);
+    const demo = [...arr];
+    demo[index].choosed = e.target.value;
+    setArr(demo)
+  }
+
   const handleChoose = (e) => {
     setChoosed(e.target.value);
   };
 
-  
+  useEffect(() => {
+    const find = datas.find((data) => data.id === edit);
+    setArr(find?.dataattributes);
+  }, [edit, datas]);
+
+  console.log(arr);
+  console.log("drop", isDropdown);
 
   const deleteData = async (id) => {
     try {
@@ -54,52 +68,40 @@ export const UserData = () => {
     }
   };
 
-  const deleteAttribute = async (id) => {
-    try {
-      const response = await axios_instance.put("/dataattribute/delete", {
-        id: id,
-      });
-      if (response.status === 200) {
-        setEdit(null);
-        window.location.reload();
-        console.log(response.data);
-      }
-    } catch (error) {
-      alert("Something went wrong");
-      console.log(error);
-    }
+  const handleDelete = (id) => {
+    const filter = arr.filter((data) => data.id !== id);
+    setArr(filter);
   };
 
-  const update = async(id)=>{
+  const handleAdd = () => {
+    const len = arr.length;
+    const option = isDropdown?.options ? isDropdown?.options : null;
+    const new_data = [
+      ...arr,
+      {
+        id: len,
+        attribute: isDropdown?.attribute,
+        options: option,
+        choosed: choosed,
+      },
+    ];
+
+    setArr(new_data);
+    setShow(false);
+    setChoosed(null);
+    setIsDropdown(null);
+  };
+
+  const update = async()=>{
     try {
-      const response = await axios_instance.put("/dataattribute/update",{id,choosed});
+       const response = await axios_instance.put("/data/update",{id:edit,data:arr})
        if(response.status === 200){
-          window.location.reload();
+         window.location.reload();
        }
     } catch (error) {
       console.log(error);
     }
   }
-
-  const addDataAttribute = async (id) => {
-    const option = isDropdown?.options?isDropdown?.options:null;
-    const data = {
-      attribute: isDropdown?.attribute,
-      options: option,
-      choosed: choosed,
-      data_id: id,
-    };
-
-
-    try {
-      const response = await axios_instance.post("/dataattribute/add", data);
-      if (response.status === 201) {
-        window.location.reload();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div className="mt-8 flex flex-col gap-4 h-80 w-[400px] items-center overflow-y-auto ">
@@ -112,16 +114,22 @@ export const UserData = () => {
             <div className=" cursor-pointer" onClick={() => setEdit(datas.id)}>
               Edit{" "}
             </div>
-          ) : ""}
-          {
-            edit === datas.id?
-            (
-              <div className=" cursor-pointer" onClick={() => setEdit(null)}>
-                cancel
-              </div>
-            ):
+          ) : (
             ""
-          }
+          )}
+          {edit === datas.id ? (
+            <div className="flex gap-2">
+            
+            <div onClick={update} className=" cursor-pointer">
+            update
+          </div>
+          <div className=" cursor-pointer" onClick={() => setEdit(null)}>
+              cancel
+            </div>
+            </div>
+          ) : (
+            ""
+          )}
           <div
             className="text-red-500 float-end w-fit cursor-pointer"
             onClick={() => deleteData(datas.id)}
@@ -130,82 +138,81 @@ export const UserData = () => {
           </div>
           <p className="">Model Name: {datas.model}</p>
           <div className="flex flex-col gap-2 ">
-            {datas?.dataattributes.map((attribute) => (
-              <div key={attribute.id} className="border border-gray-300 p-2">
-                <p>
-                  Attribute Name: {attribute.attribute}{" "}
-                  {edit === datas.id ? (
-                    <>
-                    {
-                      attedit?
-                      <span
-                      onClick={()=>update(attribute.id)}
-                      className="cursor-pointer text-xs"
-                      >💾</span>
-                      :
-                    (<span 
-                    onClick={()=>{setAttedit(attribute.id)}}
-                    className="cursor-pointer text-xs">✏️</span>)
-                  }
-                  <span
-                      onClick={() => {
-                        deleteAttribute(attribute.id);
-                      }}
-                      className="text-xs cursor-pointer"
-                    >
-                      ❌
-                    </span>
-                    </>
-                  ) : null}
-                </p>
-                {!attribute?.options ? (
-                  
-                    attedit === attribute.id && edit === datas.id?
-                    (<input
-                    onChange={handleChoose}
-                    type="text"
-                    placeholder="enter value"
-                    className="w-full border border-black outline-none px-1"
-                  />)
-                    :
+            {edit !== datas.id ? (
+              datas?.dataattributes.map((attribute) => (
+                <div key={attribute.id} className="border border-gray-300 p-2">
+                  <p>Attribute Name: {attribute.attribute} </p>
+                  {!attribute?.options ? (
                     <p className="text-sm pl-2">{attribute.choosed}</p>
-                  
-                )
-                 : (
-                  ""
-                )}
-                <div className="flex text-sm flex-col gap-2">
-               
-                  {attribute?.options?.split(",").map((option, index) => (
-                    <label key={index}>
-                      
-                      <input
-                        type="radio"
-                        className=""
-                        value={option}
-                        onChange={handleChoose}
-                        disabled={attedit!==attribute.id}
-                        checked={attedit==attribute.id?option === choosed:option === attribute.choosed}
-                      />
-                      {option}
-                    </label>
-                  ))}
+                  ) : (
+                    ""
+                  )}
+                  <div className="flex text-sm flex-col gap-2">
+                    {attribute?.options?.split(",").map((option, index) => (
+                      <label key={index}>
+                        <input
+                          type="radio"
+                          className=""
+                          value={option}
+                          onChange={handleChoose}
+                          disabled
+                          checked={option === attribute.choosed}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-            {edit === datas.id ? (
-              <div
-                onClick={() => {
-                  setShow(!show);
-                }}
-                className="w-5 h-5 border flex items-center justify-center cursor-pointer"
-              >
-                +
-              </div>
+              ))
             ) : (
-              ""
+              <>
+                {arr?.map((attribute) => (
+                  <div
+                    key={attribute.id}
+                    className="border border-gray-300 p-2"
+                  >
+                    <span
+                      className="text-red-500 float-right text-xs "
+                      onClick={() => handleDelete(attribute.id)}
+                    >
+                      Delete
+                    </span>
+                    <p>Attribute Name: {attribute.attribute}</p>
+                    {!attribute?.options ? (
+                      <p className="text-sm pl-2">{attribute.choosed}</p>
+                    ) : (
+                      ""
+                    )}
+                    <div className="flex text-sm flex-col gap-2">
+                      <span onClick={()=>setatt(attribute.id)} className="w-fit float-right">edit</span>
+                      {attribute?.options?.split(",").map((option, index) => (
+                        <label key={index}>
+                          <input
+                            type="radio"
+                            className=""
+                            value={option}
+                            onChange={handleChange}
+                            disabled={att!==attribute.id}
+                            checked={option === attribute.choosed}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <div
+                  onClick={() => {
+                    setShow(!show);
+                  }}
+                  className="w-5 h-5 border flex items-center justify-center cursor-pointer"
+                >
+                  +
+                </div>
+              </>
             )}
-            {show && edit === datas.id? (
+
+            {show && edit === datas.id ? (
               <>
                 <select
                   onChange={handleSelect}
@@ -245,9 +252,7 @@ export const UserData = () => {
                   ""
                 )}
                 <div
-                  onClick={() => {
-                    addDataAttribute(datas.id);
-                  }}
+                  onClick={handleAdd}
                   className="bg-black text-white text-center w-fit px-2 text-sm cursor-pointer"
                 >
                   ADD

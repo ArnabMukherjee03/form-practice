@@ -1,5 +1,5 @@
 const { where } = require("sequelize");
-const { attribute, data, dataattributes } = require("../models");
+const { attribute, data, dataattributes, Sequelize } = require("../models");
 const error = require("../utils/customError");
 
 const addAttribute = async (req, res) => {
@@ -71,42 +71,42 @@ const deleteData = async (req, res) => {
   }
 };
 
-const deleteAttribute = async (req,res)=>{
-  try {
-     const {id} = req.payload;
 
-     await dataattributes.destroy({where: {id:id}});
-     return res.response({ message: "Attribute Deleted SucessFully" }).code(200);
-  } catch (err) {
-    throw error(
-      { message: err.message, status: 'failure' },
-      err.message
-    )
-  }
-}
-
-const addDataAttribute = async (req,res)=>{
+const update= async (req,res)=>{
   try {
-     
-     await dataattributes.create(req.payload);
-     return res.response({ message: "Attribute Deleted SucessFully" }).code(201);
-  } catch (err) {
-    throw error(
-      { message: err.message, status: 'failure' },
-      err.message
-    )
-  }
-}
+    const {id,data} = req.payload;
 
-const updateAttribute = async (req,res)=>{
-  try {
-    const {id,choosed} = req.payload;
-    console.log(id,choosed);
-    await dataattributes.update({ choosed: choosed }, {
+    // console.log(data,id);
+
+    const promises = [];
+    for (const item of data) {
+      const existingData = dataattributes.findOne({ where: { id: item.id } });
+      promises.push(existingData.then(existing => {
+        if (existing) {
+          return dataattributes.update(item, { where: { id: item.id } });
+        } else {
+          const new_item = {
+            attribute: item.attribute,
+            choosed: item.choosed,
+            options: item.options,
+            data_id: id
+          }
+          console.log(new_item);
+          return dataattributes.create(new_item);
+        }
+      }));
+    }
+
+    await Promise.all(promises);
+
+ 
+    await dataattributes.destroy({
       where: {
-        id: id
+        id: { [Sequelize.Op.notIn]: data.map(item => item.id) } ,
+        data_id: id
       }
     });
+      
      return res.response({ message: "Update SucessFully" }).code(200);
   } catch (err) {
     throw error(
@@ -115,13 +115,12 @@ const updateAttribute = async (req,res)=>{
     )
   }
 }
+
 module.exports = {
   addAttribute,
   getAttribute,
   addData,
   getData,
   deleteData,
-  deleteAttribute,
-  addDataAttribute,
-  updateAttribute
+  update
 };
