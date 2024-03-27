@@ -71,10 +71,57 @@ const deleteData = async (req, res) => {
   }
 };
 
+const deleteAttribute = async (req,res)=>{
+  try {
+     const {id} = req.payload;
+
+     await dataattributes.destroy({where: {id:id}});
+     return res.response({ message: "Attribute Deleted SucessFully" }).code(200);
+  } catch (err) {
+    throw error(
+      { message: err.message, status: 'failure' },
+      err.message
+    )
+  }
+}
+
+const addDataAttribute = async (req,res)=>{
+  try {
+     
+     await dataattributes.create(req.payload);
+     return res.response({ message: "Attribute Deleted SucessFully" }).code(201);
+  } catch (err) {
+    throw error(
+      { message: err.message, status: 'failure' },
+      err.message
+    )
+  }
+}
+
+const updateAttribute = async (req,res)=>{
+  try {
+    const {id,choosed} = req.payload;
+    console.log(id,choosed);
+    await dataattributes.update({ choosed: choosed }, {
+      where: {
+        id: id
+      }
+    });
+     return res.response({ message: "Update SucessFully" }).code(200);
+  } catch (err) {
+    throw error(
+      { message: err.message, status: 'failure' },
+      err.message
+    )
+  }
+}
 module.exports = {
   addAttribute,
   getAttribute,
   addData,
   getData,
-  deleteData
+  deleteData,
+  deleteAttribute,
+  addDataAttribute,
+  updateAttribute
 };

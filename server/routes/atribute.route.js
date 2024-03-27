@@ -4,6 +4,9 @@ const {
   addData,
   getData,
   deleteData,
+  deleteAttribute,
+  addDataAttribute,
+  updateAttribute,
 } = require("../controllers/attribute.controller");
 const Joi = require("joi");
 const error = require("../utils/customError");
@@ -74,7 +77,21 @@ const router = [
       options: {
         handler: deleteData,
       }
+  },
+  {
+    method: "PUT",
+    path: "/dataattribute/delete",
+    options: {
+      handler: deleteAttribute,
+    }
+},
+,{
+  method: "PUT",
+  path: "/dataattribute/update",
+  options: {
+    handler: updateAttribute,
   }
+}
 ];
 
 module.exports = router;

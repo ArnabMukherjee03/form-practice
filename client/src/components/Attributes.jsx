@@ -35,7 +35,8 @@ export const Attributes = () => {
 
       if (response.status === 201) {
         alert("New Attribute Added");
-        fetchAttributes();
+        // fetchAttributes();
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);

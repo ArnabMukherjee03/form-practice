@@ -43,6 +43,7 @@ export const UserForm = () => {
     }
   };
 
+  console.log(text);
   
   const handleSelect = (e) => {
     const filterData = data?.find((data) => data.attribute === e.target.value);
@@ -53,7 +54,9 @@ export const UserForm = () => {
       setIsDropdown(dropdown);
       new_attributes[parseInt(e.target.name) - 1] = {attribute:filterData.attribute,options:filterData.options}
       setAttributes(new_attributes)
-      setText([...text,0])
+      const text_data = [...text]
+      text_data[parseInt(e.target.name) - 1] = 0
+      setText(text_data)
     }else if(dropdown[parseInt(e.target.name) - 1] && filterData.type === "text"){
       dropdown[parseInt(e.target.name) - 1] = undefined;
       setIsDropdown(dropdown);
