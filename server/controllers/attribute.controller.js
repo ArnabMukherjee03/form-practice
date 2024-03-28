@@ -78,6 +78,13 @@ const update= async (req,res)=>{
 
     // console.log(data,id);
 
+    await dataattributes.destroy({
+      where: {
+        id: { [Sequelize.Op.notIn]: data.map(item => item.id) } ,
+        data_id: id
+      }
+    });
+
     const promises = [];
     for (const item of data) {
       const existingData = dataattributes.findOne({ where: { id: item.id } });
@@ -91,7 +98,7 @@ const update= async (req,res)=>{
             options: item.options,
             data_id: id
           }
-          console.log(new_item);
+          console.log("new",new_item);
           return dataattributes.create(new_item);
         }
       }));
@@ -99,16 +106,14 @@ const update= async (req,res)=>{
 
     await Promise.all(promises);
 
+
+
  
-    await dataattributes.destroy({
-      where: {
-        id: { [Sequelize.Op.notIn]: data.map(item => item.id) } ,
-        data_id: id
-      }
-    });
+   
       
      return res.response({ message: "Update SucessFully" }).code(200);
   } catch (err) {
+    console.log(err);
     throw error(
       { message: err.message, status: 'failure' },
       err.message

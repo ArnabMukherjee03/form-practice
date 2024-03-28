@@ -15,6 +15,7 @@ export const UserData = () => {
 
   useEffect(() => {
     fetchAttributes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
  
@@ -184,7 +185,7 @@ export const UserData = () => {
                       ""
                     )}
                     <div className="flex text-sm flex-col gap-2">
-                      <span onClick={()=>setatt(attribute.id)} className="w-fit float-right">edit</span>
+                      <span onClick={()=>setatt(attribute.id)} className="text-right cursor-pointer">edit</span>
                       {attribute?.options?.split(",").map((option, index) => (
                         <label key={index}>
                           <input
